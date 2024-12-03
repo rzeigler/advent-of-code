@@ -22,3 +22,28 @@ where
     }
     Ok(result)
 }
+
+pub fn read_matrix<R, Elem, const Cols: usize>(reader: &mut R) -> Result<[Vec<Elem>; Cols]>
+where
+    R: BufRead,
+    Elem: FromStr,
+    <Elem as FromStr>::Err: Error + Send + Sync + 'static,
+{
+    let mut result = [const { Vec::new() }; Cols];
+    for line in reader.lines() {
+        let line = line?;
+        if line.is_empty() {
+            break;
+        }
+
+        let mut words = line.split_ascii_whitespace();
+        for col in result.iter_mut() {
+            if let Some(word) = words.next() {
+                col.push(Elem::from_str(word)?)
+            } else {
+                panic!("Mismatched line input")
+            }
+        }
+    }
+    Ok(result)
+}
