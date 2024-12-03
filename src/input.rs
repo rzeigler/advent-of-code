@@ -23,13 +23,13 @@ where
     Ok(result)
 }
 
-pub fn read_matrix<R, Elem, const Cols: usize>(reader: &mut R) -> Result<[Vec<Elem>; Cols]>
+pub fn read_matrix<R, Elem, const COLS: usize>(reader: &mut R) -> Result<[Vec<Elem>; COLS]>
 where
     R: BufRead,
     Elem: FromStr,
     <Elem as FromStr>::Err: Error + Send + Sync + 'static,
 {
-    let mut result = [const { Vec::new() }; Cols];
+    let mut result = [const { Vec::new() }; COLS];
     for line in reader.lines() {
         let line = line?;
         if line.is_empty() {
