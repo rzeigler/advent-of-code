@@ -1,3 +1,4 @@
-/target
-
-/.vscode
+# aoc says not share inputs
+/inputs
+/build
+/.cache
