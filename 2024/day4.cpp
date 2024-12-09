@@ -1,7 +1,6 @@
 #include <array>
 #include <cstddef>
 #include <functional>
-#include <future>
 #include <iostream>
 #include <print>
 #include <stdexcept>
@@ -127,46 +126,31 @@ uint32_t part1(Matrix const &matrix, size_t start_row, size_t start_col) {
   return count;
 }
 
-// There are 4 possible patterns of the for X-MAS that we can compute ahead of
-// time, Basically, a rotation of
-// m  m
-//  a
-// s  s
-// around the a
-// Build this now
-consteval std::array<Layout, 4> make_search_pattern() {
-  std::array<Layout, 4> search_patterns;
+uint32_t part2(Matrix const &matrix, size_t start_row, size_t start_col) {
   // clang-format off
-  search_patterns[0] = Layout {
-    Pattern{Offset{-1, -1}, 'M'},                           Pattern{Offset{-1, 1}, 'M'},
-                                 Pattern{Offset{0, 0}, 'A'},
-    Pattern{Offset{ 1, -1}, 'S'},                           Pattern{Offset{ 1, 1}, 'S'}
-  };
-
-  // Can multiply the pattern by this to achieve clockwise rotation
-  std::array clockwise_multipliers  ={
-    Offset{1, -1},             Offset{-1, 1},
-                  Offset{1, 1},
-    Offset{-1, 1},             Offset{1, -1}
+  constexpr std::array<Layout, 4> search_pattern =  std::array{
+    Layout {
+      Pattern{Offset{-1, -1}, 'M'},                           Pattern{Offset{-1, 1}, 'M'},
+                                  Pattern{Offset{0, 0}, 'A'},
+      Pattern{Offset{ 1, -1}, 'S'},                           Pattern{Offset{ 1, 1}, 'S'}
+    },
+    Layout {
+      Pattern{Offset{-1, -1}, 'S'},                           Pattern{Offset{-1, 1}, 'M'},
+                                  Pattern{Offset{0, 0}, 'A'},
+      Pattern{Offset{ 1, -1}, 'S'},                           Pattern{Offset{ 1, 1}, 'M'}
+    },
+    Layout {
+      Pattern{Offset{-1, -1}, 'S'},                           Pattern{Offset{-1, 1}, 'S'},
+                                  Pattern{Offset{0, 0}, 'A'},
+      Pattern{Offset{ 1, -1}, 'M'},                           Pattern{Offset{ 1, 1}, 'M'}
+    },
+    Layout {
+      Pattern{Offset{-1, -1}, 'M'},                           Pattern{Offset{-1, 1}, 'S'},
+                                  Pattern{Offset{0, 0}, 'A'},
+      Pattern{Offset{ 1, -1}, 'M'},                           Pattern{Offset{ 1, 1}, 'S'}
+    }
   };
   // clang-format on
-
-  // Rotate the above pattern clockwise
-  for (uint i{1}; i < search_patterns.size(); i++) {
-    auto const &prev = search_patterns[i - 1];
-    auto &next = search_patterns[i];
-
-    for (uint p{0}; p < prev.size(); p++) {
-      next[p] = std::make_tuple(
-          pairwise_mult(std::get<0>(prev[p]), clockwise_multipliers[p]),
-          std::get<1>(prev[p]));
-    }
-  }
-  return search_patterns;
-}
-
-uint32_t part2(Matrix const &matrix, size_t start_row, size_t start_col) {
-  constexpr std::array<Layout, 4> search_pattern = make_search_pattern();
 
   for (auto &layout : search_pattern) {
     bool valid = true;
